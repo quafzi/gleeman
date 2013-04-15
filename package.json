@@ -1,0 +1,20 @@
+{
+  "name": "gleeman",
+  "version": "0.1.0",
+  "description": "Framework agnostic meta framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/gleeman/gleeman.git"
+  },
+  "author": "Stephan Hoyer <ste.hoyer@gmail.com>",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "devDependencies": {
+    "lodash": "~1.1.1",
+    "async": "~0.2.7"
+  }
+}

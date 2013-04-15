@@ -32,7 +32,9 @@ module.exports = function(config) {
     // iterate over app configuration
     app = _.each(app, function(func, name) {
       //ignore namespace property
-      if (name == '_namespace') return;
+      if (name === '_namespace') {
+        return;
+      }
       
       // generate key to access app init function
       // namespaceDirName:appName:funcName OR
@@ -74,7 +76,9 @@ module.exports = function(config) {
 
 
   async.parallel([initNamespaces, initPackages], function(err) {
-    if (err) throw err;
+    if (err) {
+      throw err;
+    }
     // So the upper defined init is done.
     // Now we have to add the preparations to auto configuration
     _.each(preparations, function(followers, dependency) {
