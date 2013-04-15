@@ -68,10 +68,10 @@ module.exports = function(config) {
     async.each(Object.keys(namespaces), initNamespace, cb);
   };
 
-  var initPackages = function(cb) {
-    async.each(packages, function(name) {
-      initApp(require(name), cb);
-    });
+  var initPackages = function(initPackagesReady) {
+    async.each(packages, function(name, initAppReady) {
+      initApp(require(name), initAppReady);
+    }, initPackagesReady);
   };
 
 
