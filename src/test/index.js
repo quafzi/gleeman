@@ -14,7 +14,7 @@ describe('gleeman-loader', function() {
       }
     }, function(err, autoConfig) {
       expect(err).to.be(null);
-      var funcNS = 'namespace:appname:func'
+      var funcNS = 'namespace:appname:func';
       expect(autoConfig).to.have.key(funcNS);
       var funclist = autoConfig[funcNS];
       expect(funclist.length).to.be(1);
@@ -57,7 +57,7 @@ describe('gleeman-loader', function() {
       }
     }, function(err, autoConfig) {
       expect(err).to.be(null);
-      var appNS = 'backward-depend:some-app:'
+      var appNS = 'backward-depend:some-app:';
       var firstFuncNS = appNS + 'func';
       var lastFuncNS = appNS + 'run-at-last';
       expect(autoConfig).to.have.key(firstFuncNS, lastFuncNS);
