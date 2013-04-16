@@ -81,3 +81,24 @@ module.exports = {
 ```
 
 Here we can see two functions defined in a app called `myapp` under the namespace `core`. `func_one` has no dependencies so there is no need to get the app argument. It adds on property to the `app-object`, the key is derived from the namespace, app name and function name. In this case it will be `core:myapp:func_one`. `func_two` depends on `func_one` so we have to add it as depenency. Because we do this, it will run after `func_one`s result is present in the `app-object`. That's why we can access it afterwards.
+
+### Backward dependencies ore follow ups
+
+The upper dependency can also be defined the other way arround:
+
+```javascript
+module.exports = {
+  func_one: [function(func_oneDone) {
+    var result = 'func_one_result';
+    func_oneDone(null, result);
+  }, 'core:myapp:func_two'],
+  func_two: function(func_twoReady, app) {
+    var resultFromOne = app['core:myapp:func_one'];
+    func_twoReady(null, resultFromOne + ' with 2');
+  }
+};
+```
+
+As you might spot, `func_one` has now an _array_-definition. But because the `func_two`-namespace is now after the function definition, the dependencies are resolved as in the prior example.
+
+In this case, this makes no sense and is also errorprone, because in `func_two` we rely on data of `func_one` without explicitly knowing about it. A typical usecase can be to provide a function to add files to a list (e. G. stylus files to render to css). You might want to start the rendering of the _stylus_ files just after all other apps have added their files to the list. So you define the rendering function as a follow up function to all functions that add a file to the list.
