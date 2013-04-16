@@ -44,7 +44,16 @@ require('gleeman')(config, function(err, autoConfig) {
 
 As you can see, _gleeman_-Function takes a configuration object and an optional callback function. This function is called at the end of the initialisation process.
 
-The configuration contains a property appsPath. This is requiered, if you want to use apps.
+The configuration contains a property `appsPath`. This is requiered, if you want to use apps. The `apps`-property itself contains the app you want to use in you project. Every app belongs to a namespace where it lives in. The namespace and the app name have to match with the directory structure of the project. For the upper example the file structure is as follows:
+
+```
+examples/minimal-project
+├── index.js
+└── apps
+    └── core
+        ├── myapp.js
+        └── myapp.test.js
+```
 
 ### What is an App?
 
