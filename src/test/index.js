@@ -19,8 +19,7 @@ describe('gleeman-loader', function() {
       var funclist = autoConfig['namespace:appname:func'];
       expect(funclist.length).to.be(1);
       expect(funclist).to.be.a('array');
-      var func = funclist[0];
-      expect(func).to.be.a('function');
+      expect(funclist[0]).to.be.a('function');
       testReady();
     });
     
@@ -37,17 +36,39 @@ describe('gleeman-loader', function() {
       },
       packages: []
     }, function(err, autoConfig) {
-      var someAppNS = 'simple-depend:some-app:func'
-      var initAppNS = 'simple-depend:some-important-init:func'
+      var someAppNS = 'simple-depend:some-app:func';
+      var initAppNS = 'simple-depend:some-important-init:func';
       expect(err).to.be(null);
-      expect(autoConfig).to.have.key(someAppNS);
-      expect(autoConfig).to.have.key(initAppNS);
+      expect(autoConfig).to.have.keys(someAppNS, initAppNS);
       var funclist = autoConfig[someAppNS];
       expect(funclist.length).to.be(2);
       expect(funclist).to.be.a('array');
       expect(funclist[0]).to.be(initAppNS);
-      var func = funclist[1];
-      expect(func).to.be.a('function');
+      expect(funclist[1]).to.be.a('function');
+      testReady();
+    });
+  });
+
+  it('should resolve backward dependencies of two funcs', function(testReady) {
+    var autoconfig = gleeman({
+      appsPath: join(__dirname, 'testfiles'),
+      apps: {
+        'backward-depend': {
+          'some-app': ''
+        }
+      },
+      packages: []
+    }, function(err, autoConfig) {
+      expect(err).to.be(null);
+      var appNS = 'backward-depend:some-app:'
+      var firstFuncNS = appNS + 'func';
+      var lastFuncNS = appNS + 'run-at-last';
+      expect(autoConfig).to.have.key(firstFuncNS, lastFuncNS);
+      var funclist = autoConfig[lastFuncNS];
+      expect(funclist).to.be.a('array');
+      expect(funclist.length).to.be(2);
+      expect(funclist[0]).to.be(firstFuncNS);
+      expect(funclist[1]).to.be.a('function');
       testReady();
     });
   });
