@@ -18,7 +18,7 @@ _gleeman_ uses the asyc.auto feature to resolve the dependencies. This leads to 
 * The dependencies are easily managable in the definition.
 * Dependencies can easaly added and removed without any pain.
 * gleeman and async.auto care about the loading order.
-* You can test you module with out having to worry about any initialisation of the depenedencies, you can set there state as you want
+* You can test you module with out having to worry about any initialisation of the depenedencies, you can set there state as you want - this is called _depenecy injection_
 * By defining a namespace property in you app, it is easy distributable as a package to be used in other projects, it can also be deployed to npm so that others are able to plug it into there gleeman based projects.
 
 ## Usage
@@ -48,9 +48,9 @@ The configuration contains a property appsPath. This is requiered, if you want t
 
 ### What is an App?
 
-An app is a basic functionality of you project. It can be for example a basic express server, a css preprocessor, a database connection manager and so forth. An app can add functionality to your project or just provide data.
+An app is a basic functionality of your project. It can be for example a basic express server, a css preprocessor, a database connection manager and so forth. An app can add functionality to your project or just provide data.
 
-The app itself constist of several functions. These functions are called in the order you define by addind depenedencies. All these functions get a callback as first argument. THis should be called, when the function has all data it wants to return. The first parameter is an potential error that occurs during process, the second is the result of the function. It is stored in the app-object with the namespace of the func as key. Following functions can then access the result of this one, because this `app-object` is handed as second parameter to the function.
+The app itself constist of several functions. These functions are called in the order you define by addind depenedencies. All these functions get a callback as first argument. This should be called, when the function has all data it wants to return. The first parameter is an potential error that occurs during process, the second is the result of the function. It is stored in the app-object with the namespace of the func as key. Following functions can then access the result of this one, because this `app-object` is handed as second parameter to the function.
 
 ```javascript
 module.exports = {
