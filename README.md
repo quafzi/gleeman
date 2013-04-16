@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/gleeman/gleeman.png?branch=master)](https://travis-ci.org/gleeman/gleeman)
+
 #gleeman
 
 ####Framework agnostic meta framework
