@@ -2,7 +2,7 @@ var join = require('path').join;
 var async = require('async');
 var _ = require('lodash');
 
-module.exports = function(config) {
+module.exports = function(config, gleemanInitReady) {
   var namespaces = config.apps;
   var packages = config.packages;
 
@@ -35,7 +35,6 @@ module.exports = function(config) {
       if (name === '_namespace') {
         return;
       }
-      
       // generate key to access app init function
       // namespaceDirName:appName:funcName OR
       // appNamespace:funcName
@@ -76,9 +75,6 @@ module.exports = function(config) {
 
 
   async.parallel([initNamespaces, initPackages], function(err) {
-    if (err) {
-      throw err;
-    }
     // So the upper defined init is done.
     // Now we have to add the preparations to auto configuration
     _.each(preparations, function(followers, dependency) {
@@ -96,7 +92,10 @@ module.exports = function(config) {
         }
       });
     });
+    async.auto(autoConfig);
+    if (_.isFunction(gleemanInitReady)) {
+      gleemanInitReady(err, autoConfig);
+    }
   });
-  async.auto(autoConfig);
 };
 
