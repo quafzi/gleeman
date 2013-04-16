@@ -4,7 +4,7 @@ var join = require('path').join;
 var gleeman = require('../');
 
 describe('gleeman-loader', function() {
-  it('should load on single app', function(testReady) {
+  it('should load on single app', function(testDone) {
     var autoconfig = gleeman({
       appsPath: join(__dirname, 'testfiles'),
       apps: {
@@ -20,11 +20,11 @@ describe('gleeman-loader', function() {
       expect(funclist.length).to.be(1);
       expect(funclist).to.be.a('array');
       expect(funclist[0]).to.be.a('function');
-      testReady();
+      testDone();
     });
   });
 
-  it('should load two apps functions in correct order', function(testReady) {
+  it('should load two apps functions in correct order', function(testDone) {
     var autoconfig = gleeman({
       appsPath: join(__dirname, 'testfiles'),
       apps: {
@@ -43,11 +43,11 @@ describe('gleeman-loader', function() {
       expect(funclist).to.be.a('array');
       expect(funclist[0]).to.be(initAppNS);
       expect(funclist[1]).to.be.a('function');
-      testReady();
+      testDone();
     });
   });
 
-  it('should resolve backward dependencies of two funcs', function(testReady) {
+  it('should resolve backward dependencies of two funcs', function(testDone) {
     var autoconfig = gleeman({
       appsPath: join(__dirname, 'testfiles'),
       apps: {
@@ -66,11 +66,11 @@ describe('gleeman-loader', function() {
       expect(funclist.length).to.be(2);
       expect(funclist[0]).to.be(firstFuncNS);
       expect(funclist[1]).to.be.a('function');
-      testReady();
+      testDone();
     });
   });
 
-  it('should load on single package', function(testReady) {
+  it('should load on single package', function(testDone) {
     var autoconfig = gleeman({
       appsPath: join(__dirname, 'testfiles'),
       packages: [join(__dirname, 'testfiles/packages/gleeman-package')]
@@ -82,7 +82,7 @@ describe('gleeman-loader', function() {
       expect(funclist.length).to.be(1);
       expect(funclist).to.be.a('array');
       expect(funclist[0]).to.be.a('function');
-      testReady();
+      testDone();
     });
   });
   

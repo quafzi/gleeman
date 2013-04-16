@@ -23,7 +23,7 @@ describe('myapp', function() {
       expect(myapp.func_two[1]).to.be.an('function');
     });
     it('should return a string', function(done) {
-      // set dependency result
+      // dependency injection, whoo hoo ;)
       var app = {'core:myapp:func_one': 'huhu'};
       var func = myapp.func_two[1];
       var cb = function(err, result) {

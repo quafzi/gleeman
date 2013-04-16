@@ -2,7 +2,7 @@ var join = require('path').join;
 var async = require('async');
 var _ = require('lodash');
 
-module.exports = function(config, gleemanInitReady) {
+module.exports = function(config, gleemanInitDone) {
   var namespaces = config.apps;
   var packages = config.packages;
 
@@ -13,8 +13,8 @@ module.exports = function(config, gleemanInitReady) {
   var preparations = {};
 
   // function to init one namespace directory
-  var initNamespace = function(ns, nsInitReady) {
-    async.each(Object.keys(namespaces[ns]), function(appName, appInitReady) {
+  var initNamespace = function(ns, nsInitDone) {
+    async.each(Object.keys(namespaces[ns]), function(appName, appInitDone) {
       // load app
       app = require(join(config.appsPath, ns, appName));
 
@@ -22,13 +22,13 @@ module.exports = function(config, gleemanInitReady) {
       // logic
       app._namespace = [ns, appName].join(':');
 
-      initApp(app, appInitReady);
+      initApp(app, appInitDone);
       // detect namespace if given
-    }, nsInitReady);
+    }, nsInitDone);
   };
 
   // function to init one given app from namespace or as package
-  var initApp = function(app, appInitReady) {
+  var initApp = function(app, appInitDone) {
     // iterate over app configuration
     app = _.each(app, function(func, name) {
       //ignore namespace property
@@ -59,7 +59,7 @@ module.exports = function(config, gleemanInitReady) {
       autoConfig[autoKey] = _.initial(func, _.isString);
     });
     // callback
-    appInitReady(null);
+    appInitDone(null);
   };
 
   // Start the whole process for all namespaces
@@ -67,10 +67,10 @@ module.exports = function(config, gleemanInitReady) {
     async.each(Object.keys(namespaces), initNamespace, cb);
   };
 
-  var initPackages = function(initPackagesReady) {
-    async.each(packages, function(name, initAppReady) {
-      initApp(require(name), initAppReady);
-    }, initPackagesReady);
+  var initPackages = function(initPackagesDone) {
+    async.each(packages, function(name, initAppDone) {
+      initApp(require(name), initAppDone);
+    }, initPackagesDone);
   };
 
 
@@ -101,8 +101,8 @@ module.exports = function(config, gleemanInitReady) {
       });
     });
     async.auto(autoConfig);
-    if (_.isFunction(gleemanInitReady)) {
-      gleemanInitReady(err, autoConfig);
+    if (_.isFunction(gleemanInitDone)) {
+      gleemanInitDone(err, autoConfig);
     }
   });
 };
