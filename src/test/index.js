@@ -11,18 +11,17 @@ describe('gleeman-loader', function() {
         namespace: {
           appname: '',
         }
-      },
-      packages: []
+      }
     }, function(err, autoConfig) {
       expect(err).to.be(null);
-      expect(autoConfig).to.have.key('namespace:appname:func');
-      var funclist = autoConfig['namespace:appname:func'];
+      var funcNS = 'namespace:appname:func'
+      expect(autoConfig).to.have.key(funcNS);
+      var funclist = autoConfig[funcNS];
       expect(funclist.length).to.be(1);
       expect(funclist).to.be.a('array');
       expect(funclist[0]).to.be.a('function');
       testReady();
     });
-    
   });
 
   it('should load two apps functions in correct order', function(testReady) {
@@ -33,8 +32,7 @@ describe('gleeman-loader', function() {
           'some-app': '',
           'some-important-init': '',
         }
-      },
-      packages: []
+      }
     }, function(err, autoConfig) {
       var someAppNS = 'simple-depend:some-app:func';
       var initAppNS = 'simple-depend:some-important-init:func';
@@ -56,8 +54,7 @@ describe('gleeman-loader', function() {
         'backward-depend': {
           'some-app': ''
         }
-      },
-      packages: []
+      }
     }, function(err, autoConfig) {
       expect(err).to.be(null);
       var appNS = 'backward-depend:some-app:'
@@ -72,4 +69,21 @@ describe('gleeman-loader', function() {
       testReady();
     });
   });
+
+  it('should load on single package', function(testReady) {
+    var autoconfig = gleeman({
+      appsPath: join(__dirname, 'testfiles'),
+      packages: [join(__dirname, 'testfiles/packages/gleeman-package')]
+    }, function(err, autoConfig) {
+      expect(err).to.be(null);
+      var funcNS = 'gleeman:gleeman-package:func';
+      expect(autoConfig).to.have.key(funcNS);
+      var funclist = autoConfig[funcNS];
+      expect(funclist.length).to.be(1);
+      expect(funclist).to.be.a('array');
+      expect(funclist[0]).to.be.a('function');
+      testReady();
+    });
+  });
+  
 });

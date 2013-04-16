@@ -74,7 +74,15 @@ module.exports = function(config, gleemanInitReady) {
   };
 
 
-  async.parallel([initNamespaces, initPackages], function(err) {
+  // only init namespaces or packages if there are any
+  var initFuncs = [];
+  if (namespaces) {
+    initFuncs.push(initNamespaces);
+  }
+  if (packages) {
+    initFuncs.push(initPackages);
+  }
+  async.parallel(initFuncs, function(err) {
     // So the upper defined init is done.
     // Now we have to add the preparations to auto configuration
     _.each(preparations, function(followers, dependency) {
