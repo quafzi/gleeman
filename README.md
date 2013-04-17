@@ -187,7 +187,7 @@ We prebuild some frequently required modules
 * [gleeman-config](https://github.com/gleeman/gleeman-config) 
   Simple config module to provide configuration for your app
 
-You may also find them usefull to learn, how to use `gleeman`.
+You may also find them useful to learn, how to use `gleeman`.
 
 ## License
 
