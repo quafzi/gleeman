@@ -67,6 +67,8 @@ module.exports = function(config, gleemanInitDone) {
         dependsClone.forEach(function(name) {
           args.push(results[name]);
         });
+        // add complete results as last argument
+        args.push(results);
         // call the original function with the newly generated arguments
         origFunc.apply(null, args);
       };
