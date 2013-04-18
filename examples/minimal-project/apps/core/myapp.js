@@ -8,9 +8,8 @@ module.exports = {
     func_oneReady(null, result);
   },
   // this function depends on the upper on, so we have to mark this
-  func_two: ['core:myapp:func_one', function(func_twoReady, app) {
+  func_two: ['core:myapp:func_one', function(func_twoReady, resultFromOne) {
     // now we can use the result from above
-    var resultFromOne = app['core:myapp:func_one'];
     func_twoReady(null, resultFromOne + ' with 2');
   }]
 };

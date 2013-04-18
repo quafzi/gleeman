@@ -24,14 +24,13 @@ describe('myapp', function() {
     });
     it('should return a string', function(done) {
       // dependency injection, whoo hoo ;)
-      var app = {'core:myapp:func_one': 'huhu'};
       var func = myapp.func_two[1];
       var cb = function(err, result) {
         expect(err).to.be(null);
         expect(result).to.be.an('string').and.to.be('huhu with 2');
         done();
       };
-      func(cb, app);
+      func(cb, 'huhu');
     });
   });
 });
