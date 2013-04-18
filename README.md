@@ -77,14 +77,15 @@ An app is a basic functionality of your project. It can be for example a basic
 express server, a css preprocessor, a database connection manager and so
 forth. An app can add functionality to your project or just provide data.
 
-The app itself constist of several functions. These functions are called in
-the order you define by addind depenedencies. All these functions get a
+The app itself consists of several functions. These functions are called in
+the defined order by adding depenedencies. All these functions get a
 callback as first argument. This should be called, when the function has all
-data it wants to return. The first parameter is an potential error that occurs
-during process, the second is the result of the function. It is stored in the
-app-object with the namespace of the func as key. Following functions can then
-access the result of this one, because this `app-object` is handed as second
-parameter to the function.
+data it want's to return. The first should parameter a potential error that
+occured during process, the second is the result of the function. It is stored in the
+result-object with the namespace of the func as key. The functions that depend
+on this function can then access the result of it, because the result is given
+as the second, third, ..., n-th parameter of the function. In Addition the
+whole `result-object` itself is always given as the last parameter.
 
 ```javascript
 module.exports = {
@@ -97,9 +98,8 @@ module.exports = {
     func_oneDone(null, result);
   },
   // this function depends on the upper on, so we have to mark this
-  func_two: ['core:myapp:func_one', function(func_twoReady, app) {
+  func_two: ['core:myapp:func_one', function(func_twoReady, resultFromOne) {
     // now we can use the result from above
-    var resultFromOne = app['core:myapp:func_one'];
     func_twoReady(null, resultFromOne + ' with 2');
   }]
 };
@@ -123,8 +123,8 @@ module.exports = {
     var result = 'func_one_result';
     func_oneDone(null, result);
   }, 'core:myapp:func_two'],
-  func_two: function(func_twoReady, app) {
-    var resultFromOne = app['core:myapp:func_one'];
+  func_two: function(func_twoReady, results) {
+    var resultFromOne = results['core:myapp:func_one'];
     func_twoReady(null, resultFromOne + ' with 2');
   }
 };
@@ -168,7 +168,7 @@ expressServer.configure(function(){
 
 module.exports = {
   _namespace: 'gleeman:express',
-  server: function(cb, app) {
+  server: function(cb) {
     cb(null, expressServer);
   },
 };
