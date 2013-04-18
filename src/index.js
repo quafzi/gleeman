@@ -54,9 +54,25 @@ module.exports = function(config, gleemanInitDone) {
         preparations[autoKey] =  prepares;
       }
       // second dependencies that should run before func incl. func itself
-      // this is already applied to auto configuration, since async auto
-      // expects exactly this format.
-      autoConfig[autoKey] = _.initial(func, _.isString);
+      var depends = _.initial(func, _.isString);
+      // pop the func out of the dependencies
+      var origFunc = depends.pop();
+      // clone the depenedeny list to use it in wrapper function
+      var dependsClone = _(depends).clone();
+      // wrap function to inject dependencies into it
+      var wrappedFunc = function(cb, results) {
+        // build all list of arguments, first argument is the callback
+        var args = [cb];
+        // collect the results of the dependend function
+        dependsClone.forEach(function(name) {
+          args.push(results[name]);
+        });
+        // call the original function with the newly generated arguments
+        origFunc.apply(null, args);
+      };
+      // add the new function to the async auto config
+      depends.push(wrappedFunc);
+      autoConfig[autoKey] = depends;
     });
     // callback
     appInitDone(null);

@@ -42,8 +42,23 @@ describe('gleeman-loader', function() {
       expect(funclist.length).to.be(2);
       expect(funclist).to.be.a('array');
       expect(funclist[0]).to.be(initAppNS);
-      expect(funclist[1]).to.be.a('function');
-      testDone();
+      var funcWithDependency = funclist[1];
+      expect(funcWithDependency).to.be.a('function');
+      // create a result for init function, that is a dependency for this
+      // function
+      var app = {};
+      app[initAppNS] = 'init result';
+      // the module itself calls the callback with all arguments as parameter
+      // see testfiles/simple-depend/some-app. So we have to give a function
+      // that checks, if the 2nd of the parameters is the result of the init
+      // function, that was a dependency of this function
+      var cb = function(dependencyResult) {
+        expect(dependencyResult[1]).to.be(app[initAppNS]);
+        testDone();
+      };
+      // call the function, to check if callback is called with the right
+      // arguments
+      funcWithDependency(cb, app);
     });
   });
 
