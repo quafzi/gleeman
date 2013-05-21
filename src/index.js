@@ -2,6 +2,18 @@ var join = require('path').join;
 var async = require('async');
 var _ = require('lodash');
 
+// With this function you can wrap an other function to log an error to
+// console, if the function is not called in time
+function assertCall(func, errMsg, time) {
+  var timeout = setTimeout(function() {
+    console.error('\033[31m' + errMsg + '\033[0m');
+  }, time || 1000);
+  return function() {
+    func.apply(null, arguments);
+    clearTimeout(timeout);
+  };
+}
+
 module.exports = function(config, gleemanInitDone) {
   var namespaces = config.apps;
   var packages = config.packages;
@@ -62,7 +74,9 @@ module.exports = function(config, gleemanInitDone) {
       // wrap function to inject dependencies into it
       var wrappedFunc = function(cb, results) {
         // build all list of arguments, first argument is the callback
-        var args = [cb];
+        //wrap the callback to log an error to console, if it was not called
+        var msg = 'ERROR! Callback of ' + autoKey + ' not called!';
+        var args = [assertCall(cb, msg)];
         // collect the results of the dependend function
         dependsClone.forEach(function(name) {
           args.push(results[name]);
@@ -118,10 +132,10 @@ module.exports = function(config, gleemanInitDone) {
         }
       });
     });
-    async.auto(autoConfig);
-    if (_.isFunction(gleemanInitDone)) {
+    msg = 'ERROR! Not all inits have been done!';
+    async.auto(autoConfig, assertCall(function(err, results) {
       gleemanInitDone(err, autoConfig);
-    }
+    }, msg));
   });
 };
 
