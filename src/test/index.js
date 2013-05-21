@@ -48,12 +48,13 @@ describe('gleeman-loader', function() {
       // function
       var app = {};
       app[initAppNS] = 'init result';
-      // the module itself calls the callback with all arguments as parameter
-      // see testfiles/simple-depend/some-app. So we have to give a function
-      // that checks, if the 2nd of the parameters is the result of the init
-      // function, that was a dependency of this function
-      var cb = function(dependencyResult) {
-        expect(dependencyResult[1]).to.be(app[initAppNS]);
+      // The module itself calls the callback with the result of the
+      // dependency (see testfiles/simple-depend/some-app).
+      // So we have to give a function that checks, if the 2nd of the
+      // parameters is the result of the init function, that was a dependency
+      // of this function.
+      var cb = function(err, dependencyResult) {
+        expect(dependencyResult).to.be(app[initAppNS]);
         testDone();
       };
       // call the function, to check if callback is called with the right
@@ -100,5 +101,4 @@ describe('gleeman-loader', function() {
       testDone();
     });
   });
-  
 });
