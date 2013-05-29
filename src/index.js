@@ -2,11 +2,15 @@ var join = require('path').join;
 var async = require('async');
 var _ = require('lodash');
 
+function logError(msg) {
+  console.error('\033[31m' + msg + '\033[0m');
+}
+
 // With this function you can wrap an other function to log an error to
 // console, if the function is not called in time
 function assertCall(func, errMsg, time) {
   var timeout = setTimeout(function() {
-    console.error('\033[31m' + errMsg + '\033[0m');
+    logError(errMsg);
   }, time || 1000);
   return function() {
     func.apply(null, arguments);
@@ -75,10 +79,12 @@ module.exports = function(config, gleemanInitDone) {
       var wrappedFunc = function(cb, results) {
         // build all list of arguments, first argument is the callback
         //wrap the callback to log an error to console, if it was not called
-        var msg = 'ERROR! Callback of ' + autoKey + ' not called!';
+        var msg = 'Callback of ' + autoKey + ' not called!';
         var args = [assertCall(cb, msg)];
         // collect the results of the dependend function
         dependsClone.forEach(function(name) {
+          if (!_(results).has(name)) {
+          }
           args.push(results[name]);
         });
         // add complete results as last argument
@@ -105,6 +111,20 @@ module.exports = function(config, gleemanInitDone) {
     }, initPackagesDone);
   };
 
+  // Checks if all dependencies are actually available and throws error if not 
+  // TODO test this!
+  var checkDependencyAvailablity = function() {
+    var autoKeys = _.keys(autoConfig);
+    _.forEach(autoConfig, function(config, name) {
+      var dependencies = _.filter(config, _.isString);
+      var unknowns = _.difference(dependencies, autoKeys);
+      if (unknowns.length) {
+        var msg = 'There is no module called ' + unknowns.join(', ') 
+                + ' referenced in ' + name;
+        logError(msg);
+      }
+    });
+  };
 
   // only init namespaces or packages if there are any
   var initFuncs = [];
@@ -132,7 +152,8 @@ module.exports = function(config, gleemanInitDone) {
         }
       });
     });
-    msg = 'ERROR! Not all inits have been done!';
+    checkDependencyAvailablity();
+    msg = 'Not all inits have been done!';
     async.auto(autoConfig, assertCall(function(err, results) {
       gleemanInitDone(err, autoConfig);
     }, msg));
