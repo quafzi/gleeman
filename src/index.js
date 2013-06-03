@@ -172,10 +172,11 @@ module.exports = function(config, runOnly, gleemanInitDone) {
     msg = 'Not all inits have been done!';
     if (!runAllMode) {
       var dependencies = getRecursiveDependencies(runOnly);
+      var omitted = _.keys(_.omit(autoConfig, dependencies));
       autoConfig = _.pick(autoConfig, dependencies);
     }
     async.auto(autoConfig, assertCall(function(err, results) {
-      gleemanInitDone(err, autoConfig);
+      gleemanInitDone(err, autoConfig, omitted);
     }, msg));
   });
 };
