@@ -19,7 +19,7 @@ function assertCall(func, errMsg, time) {
 }
 
 
-module.exports = function(config, gleemanInitDone) {
+module.exports = function(config, runOnly, gleemanInitDone) {
   var namespaces = config.apps;
   var packages = config.packages;
 
@@ -161,17 +161,22 @@ module.exports = function(config, gleemanInitDone) {
   });
   checkDependencyAvailablity();
 
-  return function(runOnly, gleemanRunDone) {
+  var run = function(runOnly, runDone) {
+    runDone = _.isFunction(runDone) ? runDone : function() {};
     if (_.isString(runOnly) && _.has(autoConfig, runOnly)) {
       var dependencies = getRecursiveDependencies(runOnly);
       var omitted = _.keys(_.omit(autoConfig, dependencies));
       autoConfig = _.pick(autoConfig, dependencies);
     } else if (_.isFunction(runOnly)) {
-      gleemanRunDone = runOnly;
+      runDone = runOnly;
     }
     msg = 'Not all inits have been done!';
     async.auto(autoConfig, assertCall(function(err, results) {
-      gleemanRunDone(err, autoConfig, omitted);
+      runDone(err, autoConfig, omitted);
     }, msg));
   };
+  if (_.isString(runOnly) || _.isFunction(runOnly)) {
+    run(runOnly, gleemanInitDone);
+  }
+  return run;
 };
