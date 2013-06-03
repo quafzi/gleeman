@@ -18,15 +18,22 @@ function assertCall(func, errMsg, time) {
   };
 }
 
-module.exports = function(config, gleemanInitDone) {
+
+module.exports = function(config, runOnly, gleemanInitDone) {
   var namespaces = config.apps;
   var packages = config.packages;
+  var runAllMode = false;
 
   // holds configuration for calling async auto function
   var autoConfig = {};
 
   // holds revert dependencies
   var preparations = {};
+
+  if(_.isUndefined(gleemanInitDone) || _.isFunction(runOnly)) {
+    gleemanInitDone = runOnly;
+    runAllMode = true;
+  }
 
   // function to init one namespace directory
   var initNamespace = function(ns, nsInitDone) {
@@ -126,6 +133,15 @@ module.exports = function(config, gleemanInitDone) {
     });
   };
 
+  // Generates an array of all function keys which directly or indirectly are
+  // required by 'funcname'
+  var getRecursiveDependencies = function(funcname) {
+    var dependencies = autoConfig[funcname].slice(0, -1);
+    var subDependencies = _.map(dependencies , getRecursiveDependencies);
+    subDependencies.push(funcname);
+    return _.flatten(subDependencies);
+  };
+
   // only init namespaces or packages if there are any
   var initFuncs = [];
   if (namespaces) {
@@ -154,6 +170,10 @@ module.exports = function(config, gleemanInitDone) {
     });
     checkDependencyAvailablity();
     msg = 'Not all inits have been done!';
+    if (!runAllMode) {
+      var dependencies = getRecursiveDependencies(runOnly);
+      autoConfig = _.pick(autoConfig, dependencies);
+    }
     async.auto(autoConfig, assertCall(function(err, results) {
       gleemanInitDone(err, autoConfig);
     }, msg));

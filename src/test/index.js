@@ -5,7 +5,7 @@ var gleeman = require('../');
 
 describe('gleeman-loader', function() {
   it('should load on single app', function(testDone) {
-    var autoconfig = gleeman({
+    var autoConfig = gleeman({
       appsPath: join(__dirname, 'testfiles'),
       apps: {
         namespace: {
@@ -25,7 +25,7 @@ describe('gleeman-loader', function() {
   });
 
   it('should load two apps functions in correct order', function(testDone) {
-    var autoconfig = gleeman({
+    var autoConfig = gleeman({
       appsPath: join(__dirname, 'testfiles'),
       apps: {
         'simple-depend': {
@@ -64,7 +64,7 @@ describe('gleeman-loader', function() {
   });
 
   it('should resolve backward dependencies of two funcs', function(testDone) {
-    var autoconfig = gleeman({
+    var autoConfig = gleeman({
       appsPath: join(__dirname, 'testfiles'),
       apps: {
         'backward-depend': {
@@ -87,7 +87,7 @@ describe('gleeman-loader', function() {
   });
 
   it('should load on single package', function(testDone) {
-    var autoconfig = gleeman({
+    var autoConfig = gleeman({
       appsPath: join(__dirname, 'testfiles'),
       packages: [join(__dirname, 'testfiles/packages/gleeman-package')]
     }, function(err, autoConfig) {
@@ -99,6 +99,37 @@ describe('gleeman-loader', function() {
       expect(funclist).to.be.a('array');
       expect(funclist[0]).to.be.a('function');
       testDone();
+    });
+  });
+
+  it('should run minimal dependencies if \'runOnly\'-mode', function(done) {
+    gleeman({
+      appsPath: join(__dirname, 'testfiles'),
+      apps: {
+        'run-only': {
+          appname: '',
+        }
+      }
+    }, 'run-only:appname:func1', function(err, autoConfig) {
+      // func1 does not depend on anything, so func2 shouldn't be run
+      expect(autoConfig).to.have.key('run-only:appname:func1');
+      expect(autoConfig).not.to.have.key('run-only:appname:func2');
+      done();
+    });
+  });
+  it('should run minimal dependencies if \'runOnly\'-mode, but run required dependencies', function(done) {
+    gleeman({
+      appsPath: join(__dirname, 'testfiles'),
+      apps: {
+        'run-only': {
+          appname: '',
+        }
+      }
+    }, 'run-only:appname:func2', function(err, autoConfig) {
+      // func2 depends on func1, so func1 should also run
+      expect(autoConfig).to.have.key('run-only:appname:func1');
+      expect(autoConfig).to.have.key('run-only:appname:func2');
+      done();
     });
   });
 });
