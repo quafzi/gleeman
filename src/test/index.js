@@ -125,10 +125,12 @@ describe('gleeman-loader', function() {
           appname: '',
         }
       }
-    }, 'run-only:appname:func2', function(err, autoConfig) {
-      // func2 depends on func1, so func1 should also run
-      expect(autoConfig).to.have.key('run-only:appname:func1');
-      expect(autoConfig).to.have.key('run-only:appname:func2');
+    }, 'run-only:appname:func3', function(err, autoConfig) {
+      // func3 depends on func2 which depends on func1, so all three should be
+      // called
+      expect(autoConfig).to.have.key('run-only:appname:func1')
+        .and.to.have.key('run-only:appname:func2')
+        .and.to.have.key('run-only:appname:func3');
       done();
     });
   });
