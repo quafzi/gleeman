@@ -19,10 +19,9 @@ function assertCall(func, errMsg, time) {
 }
 
 
-module.exports = function(config, runOnly, gleemanInitDone) {
+module.exports = function(config, gleemanInitDone) {
   var namespaces = config.apps;
   var packages = config.packages;
-  var runAllMode = false;
 
   // holds configuration for calling async auto function
   var autoConfig = {};
@@ -30,14 +29,9 @@ module.exports = function(config, runOnly, gleemanInitDone) {
   // holds revert dependencies
   var preparations = {};
 
-  if(_.isUndefined(gleemanInitDone) || _.isFunction(runOnly)) {
-    gleemanInitDone = runOnly;
-    runAllMode = true;
-  }
-
   // function to init one namespace directory
   var initNamespace = function(ns, nsInitDone) {
-    async.each(Object.keys(namespaces[ns]), function(appName, appInitDone) {
+    _.each(Object.keys(namespaces[ns]), function(appName) {
       // load app
       app = require(join(config.appsPath, ns, appName));
 
@@ -45,13 +39,13 @@ module.exports = function(config, runOnly, gleemanInitDone) {
       // logic
       app._namespace = [ns, appName].join(':');
 
-      initApp(app, appInitDone);
+      initApp(app);
       // detect namespace if given
     }, nsInitDone);
   };
 
   // function to init one given app from namespace or as package
-  var initApp = function(app, appInitDone) {
+  var initApp = function(app) {
     // iterate over app configuration
     app = _.each(app, function(func, name) {
       //ignore namespace property
@@ -103,19 +97,17 @@ module.exports = function(config, runOnly, gleemanInitDone) {
       depends.push(wrappedFunc);
       autoConfig[autoKey] = depends;
     });
-    // callback
-    appInitDone(null);
   };
 
   // Start the whole process for all namespaces
-  var initNamespaces = function(cb) {
-    async.each(Object.keys(namespaces), initNamespace, cb);
+  var initNamespaces = function() {
+    _.each(Object.keys(namespaces), initNamespace);
   };
 
-  var initPackages = function(initPackagesDone) {
-    async.each(packages, function(name, initAppDone) {
-      initApp(require(name), initAppDone);
-    }, initPackagesDone);
+  var initPackages = function() {
+    _.each(packages, function(name) {
+      initApp(require(name));
+    });
   };
 
   // Checks if all dependencies are actually available and throws error if not 
@@ -143,40 +135,43 @@ module.exports = function(config, runOnly, gleemanInitDone) {
   };
 
   // only init namespaces or packages if there are any
-  var initFuncs = [];
   if (namespaces) {
-    initFuncs.push(initNamespaces);
+    initNamespaces();
   }
   if (packages) {
-    initFuncs.push(initPackages);
+    initPackages();
   }
-  async.parallel(initFuncs, function(err) {
-    // So the upper defined init is done.
-    // Now we have to add the preparations to auto configuration
-    _.each(preparations, function(followers, dependency) {
-      // followers is a list of func keys which should run AFTER dependency, so
-      // we havt to add its key to all followers auto configuration
-      _.each(followers, function(followerKey) {
-        // check, if the follower exists
-        if (autoConfig[followerKey]) {
-          // prepend it as dependency
-          autoConfig[followerKey].unshift(dependency);
-        } else {
-          // TODO typed exception
-          throw new Error('Func key not found: "' + followerKey +
-            '". Available keys are \n * ' + _.keys(autoConfig).join('\n * '));
-        }
-      });
+
+  // So the upper defined init is done.
+  // Now we have to add the preparations to auto configuration
+  _.each(preparations, function(followers, dependency) {
+    // followers is a list of func keys which should run AFTER dependency, so
+    // we havt to add its key to all followers auto configuration
+    _.each(followers, function(followerKey) {
+      // check, if the follower exists
+      if (autoConfig[followerKey]) {
+        // prepend it as dependency
+        autoConfig[followerKey].unshift(dependency);
+      } else {
+        // TODO typed exception
+        throw new Error('Func key not found: "' + followerKey +
+          '". Available keys are \n * ' + _.keys(autoConfig).join('\n * '));
+      }
     });
-    checkDependencyAvailablity();
-    msg = 'Not all inits have been done!';
-    if (!runAllMode) {
+  });
+  checkDependencyAvailablity();
+
+  return function(runOnly, gleemanRunDone) {
+    if (_.isString(runOnly) && _.has(autoConfig, runOnly)) {
       var dependencies = getRecursiveDependencies(runOnly);
       var omitted = _.keys(_.omit(autoConfig, dependencies));
       autoConfig = _.pick(autoConfig, dependencies);
+    } else if (_.isFunction(runOnly)) {
+      gleemanRunDone = runOnly;
     }
+    msg = 'Not all inits have been done!';
     async.auto(autoConfig, assertCall(function(err, results) {
-      gleemanInitDone(err, autoConfig, omitted);
+      gleemanRunDone(err, autoConfig, omitted);
     }, msg));
-  });
+  };
 };
