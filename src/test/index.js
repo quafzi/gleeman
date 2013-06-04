@@ -118,6 +118,7 @@ describe('gleeman-loader', function() {
       done();
     });
   });
+
   it('should run minimal dependencies if \'runOnly\'-mode, but run required dependencies', function(done) {
     gleeman({
       appsPath: join(__dirname, 'testfiles'),
@@ -133,6 +134,22 @@ describe('gleeman-loader', function() {
       .and.to.have.key('run-only:appname:func2')
       .and.to.have.key('run-only:appname:func3');
     done();
+    });
+  });
+  it('should run minimal dependencies if \'runOnly\'-mode, array should be possible', function(done) {
+    gleeman({
+      appsPath: join(__dirname, 'testfiles'),
+      apps: {
+        'run-only': {
+          appname: '',
+        }
+      }
+    })(['run-only:appname:func2', 'run-only:appname:func4'], function(err, autoConfig) {
+      expect(autoConfig).to.have.key('run-only:appname:func1')
+      .and.to.have.key('run-only:appname:func2')
+      .and.to.have.key('run-only:appname:func4')
+      .and.to.not.have.key('run-only:appname:func3');
+      done();
     });
   });
 });

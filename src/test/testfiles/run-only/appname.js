@@ -7,5 +7,8 @@ module.exports = {
   }],
   func3: ['run-only:appname:func2', function(cb, func1result) {
     cb();
-  }]
+  }],
+  func4: function(cb) {
+    cb();
+  },
 };

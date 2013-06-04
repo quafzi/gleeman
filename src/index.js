@@ -127,11 +127,12 @@ module.exports = function(config, runOnly, gleemanInitDone) {
 
   // Generates an array of all function keys which directly or indirectly are
   // required by 'funcname'
-  var getRecursiveDependencies = function(funcname) {
-    var dependencies = autoConfig[funcname].slice(0, -1);
-    var subDependencies = _.map(dependencies , getRecursiveDependencies);
-    subDependencies.push(funcname);
-    return _.flatten(subDependencies);
+  var getRecursiveDependencies = function(dependencies) {
+    dependencies = _.isArray(dependencies) ? dependencies : [dependencies];
+    var subDependencies = _.map(dependencies, function(dependency) {
+      return getRecursiveDependencies(_.initial(autoConfig[dependency]));
+    });
+    return _.union(dependencies, _.flatten(subDependencies));
   };
 
   // only init namespaces or packages if there are any
@@ -163,7 +164,8 @@ module.exports = function(config, runOnly, gleemanInitDone) {
 
   var run = function(runOnly, runDone) {
     runDone = _.isFunction(runDone) ? runDone : function() {};
-    if (_.isString(runOnly) && _.has(autoConfig, runOnly)) {
+    runOnly = _.isString(runOnly) ? [runOnly] : runOnly;
+    if (_.isArray(runOnly) && _.all(runOnly, _.partial(_.has, autoConfig))) {
       var dependencies = getRecursiveDependencies(runOnly);
       var omitted = _.keys(_.omit(autoConfig, dependencies));
       autoConfig = _.pick(autoConfig, dependencies);
