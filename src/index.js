@@ -2,8 +2,8 @@ var join = require('path').join;
 var async = require('async');
 var _ = require('lodash');
 
-function logError(msg) {
-  console.error('\033[31m' + msg + '\033[0m');
+function logError() {
+  console.error('\033[31m' + _(arguments).join('') + '\033[0m');
 }
 
 // With this function you can wrap an other function to log an error to
@@ -165,7 +165,16 @@ module.exports = function(config, runOnly, gleemanInitDone) {
   var run = function(runOnly, runDone) {
     runDone = _.isFunction(runDone) ? runDone : function() {};
     runOnly = _.isString(runOnly) ? [runOnly] : runOnly;
-    if (_.isArray(runOnly) && _.all(runOnly, _.partial(_.has, autoConfig))) {
+    if (_.isArray(runOnly)) {
+      var missing = _.difference(runOnly, _.keys(autoConfig));
+      if (missing.length) {
+        if (missing.length > 1) {
+          logError('There are no apps with name "', missing.join('", "', '"'));
+        } else {
+          logError('There is no app with name "', missing[0], '"');
+        }
+        return;
+      }
       var dependencies = getRecursiveDependencies(runOnly);
       var omitted = _.keys(_.omit(autoConfig, dependencies));
       autoConfig = _.pick(autoConfig, dependencies);
@@ -174,10 +183,10 @@ module.exports = function(config, runOnly, gleemanInitDone) {
     }
     msg = 'Not all inits have been done!';
     async.auto(autoConfig, assertCall(function(err, results) {
-      runDone(err, autoConfig, omitted);
+      runDone(err, results, autoConfig, omitted);
     }, msg));
   };
-  if (_.isString(runOnly) || _.isFunction(runOnly)) {
+  if (_.isString(runOnly) || _.isArray(runOnly) || _.isFunction(runOnly)) {
     run(runOnly, gleemanInitDone);
   }
   return run;
