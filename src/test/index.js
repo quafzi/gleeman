@@ -12,7 +12,7 @@ describe('gleeman-loader', function() {
           appname: '',
         }
       }
-    })(function(err, autoConfig) {
+    })(function(err, results, autoConfig) {
       expect(err).to.be(null);
       var funcNS = 'namespace:appname:func';
       expect(autoConfig).to.have.key(funcNS);
@@ -33,7 +33,7 @@ describe('gleeman-loader', function() {
         'some-important-init': '',
           }
         }
-    })(function(err, autoConfig) {
+    })(function(err, results, autoConfig) {
       var someAppNS = 'simple-depend:some-app:func';
       var initAppNS = 'simple-depend:some-important-init:func';
       expect(err).to.be(null);
@@ -71,7 +71,7 @@ describe('gleeman-loader', function() {
             'some-app': ''
           }
         }
-    })(function(err, autoConfig) {
+    })(function(err, results, autoConfig) {
       expect(err).to.be(null);
       var appNS = 'backward-depend:some-app:';
       var firstFuncNS = appNS + 'func';
@@ -90,7 +90,7 @@ describe('gleeman-loader', function() {
     var autoConfig = gleeman({
       appsPath: join(__dirname, 'testfiles'),
         packages: [join(__dirname, 'testfiles/packages/gleeman-package')]
-    })(function(err, autoConfig) {
+    })(function(err, results, autoConfig) {
       expect(err).to.be(null);
       var funcNS = 'gleeman:gleeman-package:func';
       expect(autoConfig).to.have.key(funcNS);
@@ -110,7 +110,7 @@ describe('gleeman-loader', function() {
           appname: '',
         }
       }
-    })('run-only:appname:func1', function(err, autoConfig, omitted) {
+    })('run-only:appname:func1', function(err, results, autoConfig, omitted) {
       // func1 does not depend on anything, so func2 shouldn't be run
       expect(autoConfig).to.have.key('run-only:appname:func1');
       expect(autoConfig).not.to.have.key('run-only:appname:func2');
@@ -127,7 +127,7 @@ describe('gleeman-loader', function() {
           appname: '',
         }
       }
-    })('run-only:appname:func3', function(err, autoConfig) {
+    })('run-only:appname:func3', function(err, results, autoConfig) {
       // func3 depends on func2 which depends on func1, so all three should be
       // called
       expect(autoConfig).to.have.key('run-only:appname:func1')
@@ -144,7 +144,7 @@ describe('gleeman-loader', function() {
           appname: '',
         }
       }
-    })(['run-only:appname:func2', 'run-only:appname:func4'], function(err, autoConfig) {
+    })(['run-only:appname:func2', 'run-only:appname:func4'], function(err, results, autoConfig) {
       expect(autoConfig).to.have.key('run-only:appname:func1')
       .and.to.have.key('run-only:appname:func2')
       .and.to.have.key('run-only:appname:func4')
