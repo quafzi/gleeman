@@ -84,8 +84,6 @@ module.exports = function(config, runOnly, gleemanInitDone) {
         var args = [assertCall(cb, msg)];
         // collect the results of the dependend function
         dependsClone.forEach(function(name) {
-          if (!_(results).has(name)) {
-          }
           args.push(results[name]);
         });
         // add complete results as last argument
@@ -183,7 +181,18 @@ module.exports = function(config, runOnly, gleemanInitDone) {
     }
     msg = 'Not all inits have been done!';
     async.auto(autoConfig, assertCall(function(err, results) {
-      runDone(err, results, autoConfig, omitted);
+      //provide results of run only funcs as arguments
+      args = [err];
+      if (runOnly) {
+        runOnly.forEach(function(name) {
+          args.push(results[name]);
+        });
+      }
+      // add complete results
+      args.push(results);
+      args.push(autoConfig);
+      args.push(omitted);
+      runDone.apply(null, args);
     }, msg));
   };
   if (_.isString(runOnly) || _.isArray(runOnly) || _.isFunction(runOnly)) {
