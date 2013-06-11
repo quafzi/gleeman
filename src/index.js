@@ -160,10 +160,10 @@ module.exports = function(config, runOnly, gleemanInitDone) {
   });
   checkDependencyAvailablity();
 
-  var run = function(runOnly, runDone) {
-    runDone = _.isFunction(runDone) ? runDone : function() {};
-    runOnly = _.isString(runOnly) ? [runOnly] : runOnly;
-    if (_.isArray(runOnly)) {
+  var run = function(run) {
+    var runDone = run;
+    if (_.isArray(run)) {
+      runDone = run.pop();
       var missing = _.difference(runOnly, _.keys(autoConfig));
       if (missing.length) {
         if (missing.length > 1) {
@@ -173,18 +173,16 @@ module.exports = function(config, runOnly, gleemanInitDone) {
         }
         return;
       }
-      var dependencies = getRecursiveDependencies(runOnly);
+      var dependencies = getRecursiveDependencies(run);
       var omitted = _.keys(_.omit(autoConfig, dependencies));
       autoConfig = _.pick(autoConfig, dependencies);
-    } else if (_.isFunction(runOnly)) {
-      runDone = runOnly;
     }
     msg = 'Not all inits have been done!';
     async.auto(autoConfig, assertCall(function(err, results) {
       //provide results of run only funcs as arguments
       args = [err];
-      if (runOnly) {
-        runOnly.forEach(function(name) {
+      if (_.isArray(run)) {
+        run.forEach(function(name) {
           args.push(results[name]);
         });
       }

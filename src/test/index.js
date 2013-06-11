@@ -86,10 +86,10 @@ describe('gleeman-loader', function() {
     });
   });
 
-  it('should load on single package', function(testDone) {
+  it('should load one single package', function(testDone) {
     var autoConfig = gleeman({
       appsPath: join(__dirname, 'testfiles'),
-        packages: [join(__dirname, 'testfiles/packages/gleeman-package')]
+      packages: [join(__dirname, 'testfiles/packages/gleeman-package')]
     })(function(err, results, autoConfig) {
       expect(err).to.be(null);
       var funcNS = 'gleeman:gleeman-package:func';
@@ -110,13 +110,14 @@ describe('gleeman-loader', function() {
           appname: '',
         }
       }
-    })('run-only:appname:func1', function(err, results, autoConfig, omitted) {
+    })(['run-only:appname:func1', function(err, func1Result, results, autoConfig, omitted) {
       // func1 does not depend on anything, so func2 shouldn't be run
+      expect(func1Result).to.be('func1Result');
       expect(autoConfig).to.have.key('run-only:appname:func1');
       expect(autoConfig).not.to.have.key('run-only:appname:func2');
       expect(omitted).to.contain('run-only:appname:func2');
       done();
-    });
+    }]);
   });
 
   it('should run minimal dependencies if \'runOnly\'-mode, but run required dependencies', function(done) {
@@ -127,14 +128,15 @@ describe('gleeman-loader', function() {
           appname: '',
         }
       }
-    })('run-only:appname:func3', function(err, results, autoConfig) {
+    })(['run-only:appname:func3', function(err, func3Result, results, autoConfig) {
       // func3 depends on func2 which depends on func1, so all three should be
       // called
+      expect(func3Result).to.be('func3Result');
       expect(autoConfig).to.have.key('run-only:appname:func1')
       .and.to.have.key('run-only:appname:func2')
       .and.to.have.key('run-only:appname:func3');
-    done();
-    });
+      done();
+    }]);
   });
   it('should run minimal dependencies if \'runOnly\'-mode, array should be possible', function(done) {
     gleeman({
@@ -144,12 +146,14 @@ describe('gleeman-loader', function() {
           appname: '',
         }
       }
-    })(['run-only:appname:func2', 'run-only:appname:func4'], function(err, results, autoConfig) {
+    })(['run-only:appname:func2', 'run-only:appname:func4', function(err, func2Result, func4Result, results, autoConfig) {
+      expect(func4Result).to.be('func4Result');
+      expect(func2Result).to.be('func2Result');
       expect(autoConfig).to.have.key('run-only:appname:func1')
       .and.to.have.key('run-only:appname:func2')
       .and.to.have.key('run-only:appname:func4')
       .and.to.not.have.key('run-only:appname:func3');
       done();
-    });
+    }]);
   });
 });
