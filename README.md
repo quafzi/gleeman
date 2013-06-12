@@ -47,14 +47,15 @@ var config = {
   }
 };
 
-require('gleeman')(config, function(err, autoConfig) {
+var run = require('gleeman')(config)
+run(function(err, autoConfig) {
   console.log(autoConfig);
 });
 ```
 
-As you can see, _gleeman_-Function takes a configuration object and an
-optional callback function. This function is called at the end of the
-initialisation process.
+As you can see, _gleeman_-Function takes a configuration object as parameter 
+and returns a runner to start the process. This can have an optional callback 
+function. This function is called at the end of the initialisation process.
 
 The configuration contains a property `appsPath`. This is requiered, if you
 want to use apps. The `apps`-property itself contains the app you want to use
