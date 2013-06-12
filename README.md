@@ -190,6 +190,9 @@ We prebuild some frequently required modules
 
 You may also find them useful to learn, how to use `gleeman`.
 
+There is also a [skeleton project](https://github.com/gleeman/skeleton) 
+to get an idea, how to use gleeman.
+
 ## License
 
 (The MIT License)
