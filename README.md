@@ -17,6 +17,8 @@ loader, which solves all these problems.
 
 See the example directory.
 
+Or have a look at the [skeleton project](https://github.com/gleeman/skeleton).
+
 ## Why
 
 _gleeman_ uses the asyc.auto feature to resolve the dependencies. This leads
@@ -189,9 +191,6 @@ We prebuild some frequently required modules
   Simple config module to provide configuration for your app
 
 You may also find them useful to learn, how to use `gleeman`.
-
-There is also a [skeleton project](https://github.com/gleeman/skeleton) 
-to get an idea, how to use gleeman.
 
 ## License
 
